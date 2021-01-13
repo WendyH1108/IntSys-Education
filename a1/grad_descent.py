@@ -217,7 +217,19 @@ def grad_descent(h, grad_h, loss_f, grad_loss_f, x, y, steps):
     # TODO 1: Write the traditional gradient descent algorithm without matrix
     # operations or numpy vectorization
     # return np.zeros((1,))
-
+    theta=np.random.random_sample((1, x.shape[1]))
+    datasize = x.shape[0]
+    thetalist=[]
+    lr=0.01
+    for i in range (steps):
+        k=0
+        total_loss=0
+        for j in x:
+            total_loss=total_loss+grad_loss_f(h, grad_h, theta, j, y[k])
+            k=k+1
+        theta=theta-0.01*total_loss/datasize
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 def stochastic_grad_descent(h, grad_h, loss_f, grad_loss_f, x, y, steps):
     """grad_descent: gradient descent algorithm on a hypothesis class.
@@ -260,8 +272,16 @@ def stochastic_grad_descent(h, grad_h, loss_f, grad_loss_f, x, y, steps):
     """
 
     # TODO 2
-    return np.zeros((1,))
-
+    theta=np.random.random_sample((1, x.shape[1]))
+    # datasize = x.shape[0]
+    thetalist=[]
+    lr=0.01
+    for i in range (steps):
+        num=numpy.random.randint(0,n)
+        loss=grad_loss_f(h, grad_h, theta, x[num], y[num])
+        theta=theta-0.01*loss
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 def minibatch_grad_descent(h, grad_h, loss_f, grad_loss_f, x, y, steps):
     """grad_descent: gradient descent algorithm on a hypothesis class.
@@ -305,7 +325,19 @@ def minibatch_grad_descent(h, grad_h, loss_f, grad_loss_f, x, y, steps):
 
     # TODO 3: Write the stochastic mini-batch gradient descent algorithm without 
     # matrix operations or numpy vectorization
-    return np.zeros((1,))
+    theta=np.random.random_sample((1, x.shape[1]))
+    thetalist=[]
+    lr=0.01
+    np.random.shuffle(x)
+    for i in range (steps):
+        batch_size=0
+        total_loss=0
+        while batch_size<2:
+            total_loss=total_loss+grad_loss_f(h, grad_h, theta, x[batch_size], y[batch_size])
+            batch_size=batch_size+1
+        theta=theta-0.01*total_loss/batch_size
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 
 def matrix_gd(h, grad_h, loss_f, grad_loss_f, x, y, steps, batch_size):
@@ -352,7 +384,15 @@ def matrix_gd(h, grad_h, loss_f, grad_loss_f, x, y, steps, batch_size):
 
     # TODO 4: Write the traditional gradient descent algorithm WITH matrix
     # operations or numpy vectorization
-    return np.zeros((1,))
+    theta=np.random.random_sample((1, x.shape[1]))
+    datasize = x.shape[0]
+    thetalist=[]
+    lr=0.01
+    for i in range (steps):
+        total_loss=total_loss+grad_loss_f(h, grad_h, theta, j, y[k])
+        theta=theta-0.01*total_loss/datasize
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 
 def matrix_sgd(h, grad_h, loss_f, grad_loss_f, x, y, steps):
@@ -397,8 +437,15 @@ def matrix_sgd(h, grad_h, loss_f, grad_loss_f, x, y, steps):
 
     # TODO 5: Write the stochastic gradient descent algorithm WITH matrix
     # operations or numpy vectorization
-    return np.zeros((1,))
-
+    theta=np.random.random_sample((1, x.shape[1]))
+    thetalist=[]
+    lr=0.01
+    for i in range (steps):
+        num=numpy.random.randint(0,n)
+        loss=grad_loss_f(h, grad_h, theta, x[num], y[num])
+        theta=theta-0.01*loss
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 def matrix_minibatch_gd(h, grad_h, loss_f, grad_loss_f, x, y, steps, batch_size):
     """matrix_minibatch_gd: Mini-Batch GD using numpy matrix operations
@@ -444,7 +491,17 @@ def matrix_minibatch_gd(h, grad_h, loss_f, grad_loss_f, x, y, steps, batch_size)
 
     # TODO 6: Write the stochastic mini-batch gradient descent algorithm WITH 
     # matrix operations or numpy vectorization
-    return np.zeros((1,))
+    theta=np.random.random_sample((1, x.shape[1]))
+    start=0
+    thetalist=[]
+    lr=0.01
+    np.random.shuffle(x)
+    for i in range (steps):
+        total_loss=grad_loss_f(h, grad_h, theta, x[stat:stat+batch_size], y[stat:stat+batch_size])
+        theta=theta-0.01*total_loss/batch_size
+        start=batch_size
+        thetalist.append(theta)
+    return theta, np.array(thetalist)
 
 
 # ============================================================================
