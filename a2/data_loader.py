@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
+import torch
 
 
 class SimpleDataset(Dataset):
@@ -18,9 +19,12 @@ class SimpleDataset(Dataset):
         # with open('path/to/.csv', 'r') as f:
         #   lines = ...
         ## Look up how to read .csv files using Python. This is common for datasets in projects.
-
         self.transform = transform
-        pass
+        with open(path_to_csv,'r')as f:
+            self.dataset = list(csv.reader(f,  delimiter=','))
+        for row in self.dataset:
+            for i in range(len(row)):
+                row[i]=float(row[i])
 
     def __len__(self):
         """__len__ [summary]
@@ -28,7 +32,7 @@ class SimpleDataset(Dataset):
         [extended_summary]
         """
         ## TODO: Returns the length of the dataset.
-        pass
+        return len(self.dataset)
 
     def __getitem__(self, index):
         """__getitem__ [summary]
@@ -47,12 +51,20 @@ class SimpleDataset(Dataset):
         # if self.transform:
         #   sample = self.transform(sample)
         ## Remember to convert the x and y into torch tensors.
-
-        pass
+        sample=self.dataset[index]
+        array=np.array(sample)
+        length=len(sample)
+        x_list=array[:length-1]
+        y_list=array[length-1]
+        result=(x_list,y_list)
+        if self.transform:
+            result=self.transform(result)
+        result=(torch.tensor(result[0]),torch.tensor(result[1]))
+        return result
 
 
 def get_data_loaders(path_to_csv, 
-                     transform_fn=None,
+                     transform_fn=True,
                      train_val_test=[0.8, 0.2, 0.2], 
                      batch_size=32):
     """get_data_loaders [summary]
@@ -79,9 +91,12 @@ def get_data_loaders(path_to_csv,
     ## are formed.
 
     ## BEGIN: YOUR CODE
-    train_indices = []
-    val_indices = []
-    test_indices = []
+    size_train = int(train_val_test[0]*dataset_size)
+    size_validation = int(train_val_test[1]*size_train)
+    np.random.shuffle(indices)
+    val_indices=indices[:size_validation]
+    train_indices = indices[size_validation:size_train]
+    test_indices =indices[size_train:]
     ## END: YOUR CODE
 
     # Now, we define samplers for each of the train, val and test data
