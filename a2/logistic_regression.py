@@ -15,10 +15,11 @@ class LogisticRegressionModel(nn.Module):
     :param num_param: The number of parameters that need to be initialized.
     :type num_param: int
     """
-    def __init__(self, num_param):
+    def __init__(self, num_param, loss_fn):
         ## TODO 1: Set up network
         super().__init__()
-        pass
+        self.function = nn.Linear(num_param, 1)
+        self.loss_fn=loss_fn
 
     def forward(self, x):
         """forward generates the predictions for the input
@@ -40,8 +41,7 @@ class LogisticRegressionModel(nn.Module):
         """
 
         ## TODO 2: Implement the logistic regression on sample x
-        pass
-
+        return F.sigmoid(self.function(x))
 
 class MultinomialRegressionModel(nn.Module):
     """MultinomialRegressionModel is logistic regression for multiclass prob.
@@ -59,7 +59,8 @@ class MultinomialRegressionModel(nn.Module):
         super().__init__()
         ## TODO 3: Set up network
         # NOTE: THIS IS A BONUS AND IS NOT EXPECTED FOR YOU TO BE ABLE TO DO
-        pass
+        self.function = nn.Linear(num_param, 1)
+        self.loss_fn=loss_fn
 
     def forward(self, x):
         """forward generates the predictions for the input
@@ -81,8 +82,7 @@ class MultinomialRegressionModel(nn.Module):
         """
         ## TODO 4: Implement the logistic regression on sample x
         # NOTE: THIS IS A BONUS AND IS NOT EXPECTED FOR YOU TO BE ABLE TO DO
-        pass
-
+        return F.softmax(self.function(x))
 
 def logistic_loss(output, target):
     """Creates a criterion that measures the Binary Cross Entropy
@@ -107,8 +107,8 @@ def logistic_loss(output, target):
     """
     # TODO 2: Implement the logistic loss function from the slides using
     # pytorch operations
-    return 0
-
+    length=len(output)
+    return torch.sum(-torch.log(output)*target-torch.log(1-output)*(1-target))
 
 def cross_entropy_loss(output, target):
     """Creates a criterion that measures the Cross Entropy
@@ -124,10 +124,33 @@ def cross_entropy_loss(output, target):
     :rtype: torch.Tensor
     """
     # NOTE: THIS IS A BONUS AND IS NOT EXPECTED FOR YOU TO BE ABLE TO DO
-    return 0
+    length=len(output)
+    return -torch.sum(torch.log(output)*target)
 
 
 if __name__ == "__main__":
     # TODO: Run a sample here
     # Look at linear_regression.py for a hint on how you should do this!!
-    pass
+
+    # DS3 and DS4 should use logistic regression
+    train_loader, val_loader, test_loader =get_data_loaders('/Users/wendyyyy/Cornell/CDS/IntSys-Education-master/a2/data/DS3.csv', 
+                                        transform_fn=None,  # Can also pass in None here
+                                        train_val_test=[0.8,0.2,0.2], 
+                                        batch_size=2)
+    model = LogisticRegressionModel(2,logistic_loss)
+    model.train()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    for t in range(200):
+        for batch_index, (input_t, y) in enumerate(train_loader):
+            optimizer.zero_grad()
+            preds = model(input_t)
+            loss = model.loss_fn(preds, y) 
+            loss.backward() 
+            optimizer.step()
+    model.eval()
+    total_loss=0
+    for batch_index, (input_t, y) in enumerate(test_loader):
+      preds = model(input_t)
+      total_loss=total_loss+logistic_loss(preds,y)
+
+    print(total_loss/len(test_loader))
