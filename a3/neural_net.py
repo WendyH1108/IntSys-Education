@@ -22,7 +22,7 @@ class SimpleNeuralNetModel(nn.Module):
         # hidden layer sizes
         raise NotImplementedError()
     
-    def forward(x):
+    def forward(self, x):
         """forward generates the prediction for the input x.
         
         :param x: Input array of size (Batch,Input_layer_size)
@@ -52,7 +52,7 @@ class SimpleConvNetModel(nn.Module):
         # int , etc).
         raise NotImplementedError()
     
-    def forward(x):
+    def forward(self, x):
         """forward generates the prediction for the input x.
         
         :param x: Input array of size (Batch,Input_layer_size)
@@ -64,6 +64,6 @@ class SimpleConvNetModel(nn.Module):
 
 
 if __name__ == "__main__":
-  ## You can use code similar to that used in the LinearRegression file to 
-  # load and train the model.
-  pass
+    ## You can use code similar to that used in the LinearRegression file to
+    # load and train the model.
+    pass
