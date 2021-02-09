@@ -1,8 +1,15 @@
 import csv
 import os
-
+import en_core_web_sm
+import spacy
+import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
+from pre_process import sen_tokenizer, predictors, read_data
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer, TfidfTransformer
+from sklearn.pipeline import Pipeline
+
+
 
 # Here in this file, you should define functions to try out different encodings.
 # Some options:
@@ -31,15 +38,23 @@ class SentimentDataset(Dataset):
     def __init__(self, path_to_data):
         ## TODO: Initialise the dataset given the path to the dataset directory.
         ## You may want to include other parameters, totally your choice.
-        pass
-
+        self.path = path_to_data
+        self.x ,self.y = read_data(self.path)
+        tfidf_vector = TfidfVectorizer(tokenizer = sen_tokenizer)
+        tfidf_trans = TfidfTransformer()
+        #to better re-organize and understan sinppets in sentence 
+        bow_vector = CountVectorizer(tokenizer = sen_tokenizer, ngram_range=(1,2))
+        pipe = Pipeline([("preprocesser", predictors()),
+                    ("count", bow_vector),
+                    ('vectorizer', tfidf_trans)])
+        self.x = pipe.fit_transform(self.x).toarray()
     def __len__(self):
         """__len__ [summary]
         
         [extended_summary]
         """
         ## TODO: Returns the length of the dataset.
-        pass
+        return len(self.x)
 
     def __getitem__(self, index):
         """__getitem__ [summary]
@@ -58,15 +73,16 @@ class SentimentDataset(Dataset):
         # if self.transform:
         #   sample = self.transform(sample)
         ## Remember to convert the x and y into torch tensors.
+        self.new_x = torch.from_numpy(self.x[index]).float()
+        return (self.new_x, torch.tensor(self.y[index]))
 
-        pass
+def get_data_loaders(path_to_train, batch_size=32):
+    """
+    You know the drill by now.
+    """
+    dataset = SentimentDataset(path_to_train)
 
+    # Now, we define samplers for each of the train, val and test data
+    train_loader = DataLoader(dataset, batch_size=batch_size)
 
-def get_data_loaders(path_to_pkl, 
-                     path_to_labels,
-                     train_val_test=[0.8, 0.2, 0.2], 
-                     batch_size=32):
-  """
-  You know the drill by now.
-  """
-  pass
+    return train_loader
